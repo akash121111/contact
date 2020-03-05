@@ -1,0 +1,4 @@
+	
+RewriteEngine On # Turn on the rewriting engine
+RewriteRule ^contact/?$ contact.php [NC,L]
+RewriteRule ^contact/([0-9]+)/?$ employees.php?id=$1 [NC,L]
