@@ -1,22 +1,60 @@
-Class dbObj{
-	/* Database connection start */
-	var $servername = "localhost";
-	var $username = "root";
-	var $password = "";
-	var $dbname = "contact_us";
-	var $conn;
-	function getConnstring() {
-		$con = mysqli_connect($this->servername, $this->username, $this->password, $this->dbname) or die("Connection failed: " . mysqli_connect_error());
- 
-		/* check connection */
-		if (mysqli_connect_errno()) {
-			printf("Connect failed: %s\n", mysqli_connect_error());
-			exit();
-		} else {
-			$this->conn = $con;
+<?php	
+
+
+
+
+
+
+include("db.php");
+$db = new dbObj();
+$connection =  $db->getConnstring();
+
+$request_method=$_SERVER["REQUEST_METHOD"];
+
+
+
+	switch($request_method)
+		{
+			case 'POST':
+			// Insert message
+			contact();
+			break;
+			default:
+				// Invalid Request Method
+				header("HTTP/1.0 405 Method Not Allowed");
+				break;
 		}
-		return $this->conn;
-	}
-}
- 
+
+
+			function contact()
+				{
+					global $connection;
+			 
+					$data = json_decode(file_get_contents('php://input'), true);
+					$name=$data["name"];
+					$email=$data["email"];
+					$contact_us=$data["contact_us"];
+					$message=$data["message"];
+
+					echo $query="INSERT INTO contact_info SET name='".$name."', email='".$email."', contact_us='".$contact_us."', message='".$message."'";
+					if(mysqli_query($connection, $query))
+					{
+						$response=array(
+							'status' => 1,
+							'status_message' =>'message send succesfully.'
+						);
+					}
+					else
+					{
+						$response=array(
+							'status' => 0,
+							'status_message' =>'We regret for the inconvinenece caused.'
+						);
+					}
+					header('Content-Type: application/json');
+					echo json_encode($response);
+				
+
+			}
+
 ?>
